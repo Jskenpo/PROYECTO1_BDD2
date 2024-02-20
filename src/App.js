@@ -20,7 +20,7 @@ app.use(require('./routes/index'));
 
 
 //mongodb atlas connection 
-mongoose.connect('mongodb+srv://val21328:joto76fiji@cluster0.ubmwx9v.mongodb.net/Proyecto1BDD2?retryWrites=true&w=majority')
+mongoose.connect('mongodb+srv://val21328:ABCDE12345@cluster0.ubmwx9v.mongodb.net/Proyecto1BDD2?retryWrites=true&w=majority')
     .then(() => console.log('DB is connected'))
     .catch(err => console.error(err));
 

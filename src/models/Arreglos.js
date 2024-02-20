@@ -1,6 +1,6 @@
 const mongoose = require ('mongoose');
 
-const arregloSchema = new mongoose.Schema({
+const arregloSchema =  mongoose.Schema({
     Nombre_de_arreglo: {
         type: String,
         required: true
@@ -72,6 +72,6 @@ const arregloSchema = new mongoose.Schema({
 });
 
 // Crea el modelo "Arreglo" utilizando el esquema definido
-const Arreglo = mongoose.model('Arreglo', arregloSchema);
+const ArregloSchema = mongoose.model('Arreglos', arregloSchema, 'Arreglos');
 
-module.exports = Arreglo;
+module.exports = ArregloSchema;

@@ -1,14 +1,14 @@
-const Arreglo = require('../models/Arreglos');
+const ArregloSchema = require('../models/Arreglos');
 
 
-const GetArreglos = async (req, res) => {
-    try {
-        const arreglos = await Arreglo.find();
-        res.json(arreglos);
-    } catch (error) {
-        console.error('Error al obtener los arreglos:', error);
-        res.status(500).json({ message: 'Error interno del servidor' });
-    }
+async function GetArreglos(req, res) {
+    ArregloSchema.find()
+        .then(arreglos => {
+            res.json(arreglos)
+        })
+        .catch(err => {
+            res.json(err)
+        })
 }
 
 

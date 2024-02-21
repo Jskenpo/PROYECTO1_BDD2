@@ -1,8 +1,8 @@
 const { Router } = require('express');
 const router = Router();
-const { GetArreglos, PostArreglos, GetArreglosBySKU, PostManyArreglos, UpdateArreglosById, DeleteArreglosBySKU } = require('../controllers/arreglos.controller');
-const { GetClientes, ClienteConMasPedidos, PostCliente, UpdateClienteByCUI, DeleteClienteByCUI, GetClienteByCUI } = require('../controllers/cliente.controller');
-const { GetPedidos, contarPedidos, GetPedidoById, UpdatePedidoById, DeletePedidoById, PostPedido } = require('../controllers/pedidos.controller');
+const { GetArreglos, PostArreglos, GetArreglosBySKU, PostManyArreglos, UpdateArreglosById, DeleteArreglosBySKU, VerificarExistenciaArreglo, VentasPorCategoria } = require('../controllers/arreglos.controller');
+const { GetClientes, ClienteConMasPedidos, PostCliente, UpdateClienteByCUI, DeleteClienteByCUI, GetClienteByCUI, ClienteMasGastador } = require('../controllers/cliente.controller');
+const { GetPedidos, contarPedidos, GetPedidoById, UpdatePedidoById, DeletePedidoById, PostPedido, MejoresVentas, VentasPorMes, VentasPorMetodoEntrega, VentasPorMetodoPago } = require('../controllers/pedidos.controller');
 
 
 
@@ -34,10 +34,16 @@ router.delete('/Pedidos/:id', DeletePedidoById);
 router.delete('/Clientes/:cui', DeleteClienteByCUI);
 
 // Querys varios 
-router.get('/Clientes/ConMasPedidos', ClienteConMasPedidos);
-router.get('/Pedidos/count', contarPedidos);
+router.get('/Consulta/ConMasPedidos', ClienteConMasPedidos);
+router.get('/Consulta/count', contarPedidos);
+router.get('/Consulta/MejoresVentas', MejoresVentas);
+router.get('/Consulta/VentasPorMes', VentasPorMes);
+router.get('/Consulta/ClienteMasGastador', ClienteMasGastador);
+router.get('/Consulta/VerificarExistencia/:sku', VerificarExistenciaArreglo);
+router.get('/Consulta/VentasPorCategoria', VentasPorCategoria);
+router.get('/Consulta/VentasPorMetodoEntrega', VentasPorMetodoEntrega);
+router.get('/Consulta/VentasPorMetodoPago', VentasPorMetodoPago);
 
 
-    
 
 module.exports = router;

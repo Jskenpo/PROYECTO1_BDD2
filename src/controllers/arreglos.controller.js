@@ -1,4 +1,5 @@
 const ArregloSchema = require('../models/Arreglos');
+const PedidoSchema = require('../models/Pedidos');
 
 
 async function GetArreglos(req, res) {
@@ -10,7 +11,6 @@ async function GetArreglos(req, res) {
             res.json(err)
         })
 }
-
 
 const PostArreglos = async (req, res) => {
     try {
@@ -92,11 +92,69 @@ const DeleteArreglosBySKU = async (req, res) => {
     
 }
 
+const VerificarExistenciaArreglo = async (req, res) => {
+    try {
+        const sku  = req.params.sku;
+
+        // Buscar el arreglo por su SKU
+        const arreglo = await ArregloSchema.findOne({ SKU: sku });
+
+        if (!arreglo) {
+            // Si no se encuentra el arreglo, devolver un mensaje indicando que no está en existencia
+            return res.status(404).json({ mensaje: 'El arreglo no está en existencia.' });
+        }
+
+        // Verificar si la existencia del arreglo es mayor que cero
+        if (arreglo.Existencia > 0) {
+            // Si la existencia es mayor que cero, devolver un mensaje indicando que está en existencia
+            return res.json({ mensaje: 'El arreglo está en existencia.', arreglo });
+        } else {
+            // Si la existencia es cero, devolver un mensaje indicando que no está en existencia
+            return res.status(404).json({ mensaje: 'El arreglo está agotado.' });
+        }
+    } catch (error) {
+        // Si ocurre un error durante la búsqueda, devolver un mensaje de error
+        res.status(500).json({ error: error.message });
+    }
+};
+
+const VentasPorCategoria = async (req, res) => {
+    try {
+        // Agregación para calcular las ventas por categoría de arreglo
+        const ventasPorCategoria = await PedidoSchema.aggregate([
+            {
+                $lookup: {
+                    from: 'Arreglos', // Nombre de la colección de arreglos
+                    localField: 'Arreglo_entregado.arreglo',
+                    foreignField: 'SKU',
+                    as: 'arregloInfo'
+                }
+            },
+            {
+                $unwind: '$arregloInfo'
+            },
+            {
+                $group: {
+                    _id: '$arregloInfo.Categoría', // Agrupar por categoría de arreglo
+                    totalVentas: { $sum: '$Precio_total' }, // Sumar el total de ventas
+                    cantidadPedidos: { $sum: 1 } // Contar la cantidad de pedidos
+                }
+            }
+        ]);
+
+        res.json(ventasPorCategoria);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 module.exports = {
     GetArreglos,
     PostArreglos,
     GetArreglosBySKU,
     PostManyArreglos,
     UpdateArreglosById,
-    DeleteArreglosBySKU
+    DeleteArreglosBySKU,
+    VerificarExistenciaArreglo,
+    VentasPorCategoria
 }

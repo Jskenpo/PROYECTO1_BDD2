@@ -87,11 +87,119 @@ const PostPedido = async (req, res) => {
     }
 }
 
+const MejoresVentas = async (req, res) => {
+    try {
+        const ventas = await PedidoSchema.find().sort({ "Precio_total": -1 }).limit(3);
+        res.json(ventas);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
+
+const VentasPorMes = async (req, res) => {
+    try {
+        const ventasPorMes = await PedidoSchema.aggregate([
+            {
+                $group: {
+                    _id: { $month: "$Fecha" }, // Agrupar por mes
+                    totalVentas: { $sum: "$Precio_total" } // Sumar el total de ventas para cada mes
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    mes: "$_id",
+                    totalVentas: 1
+                }
+            },
+            {
+                $sort: { mes: 1 } // Ordenar por mes ascendente
+            }
+        ]);
+
+        res.json(ventasPorMes);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+const VentasPorMetodoEntrega = async (req, res) => {
+    try {
+        // Realizar una agregación para contar la cantidad de pedidos por método de entrega
+        // Realizar una agregación para contar la cantidad total de pedidos
+        const totalPedidos = await PedidoSchema.countDocuments();
+
+        // Realizar una agregación para contar la cantidad de pedidos por método de entrega
+        const ventasPorMetodoEntrega = await PedidoSchema.aggregate([
+            {
+                $group: {
+                    _id: "$Método_de_entrega",
+                    cantidadPedidos: { $sum: 1 }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    Método_de_entrega: "$_id",
+                    cantidadPedidos: 1,
+                    porcentajeVentas: { $multiply: [ { $divide: ["$cantidadPedidos", totalPedidos] }, 100 ] }
+                }
+            }
+        ]);
+
+        res.json(ventasPorMetodoEntrega);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+const VentasPorMetodoPago = async (req, res) => {
+    try {
+        // Obtener el total de pedidos
+        const totalVentas = await PedidoSchema.aggregate([
+            {
+                $group: {
+                    _id: null,
+                    totalVentas: { $sum: "$Precio_total" }
+                }
+            }
+        ]);
+
+        // Realizar una agregación para calcular el total de ventas por método de pago
+        const ventasPorMetodoPago = await PedidoSchema.aggregate([
+            {
+                $group: {
+                    _id: "$Método_de_pago",
+                    totalVentas: { $sum: "$Precio_total" },
+                    cantidadPedidos: { $sum: 1 } 
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    Método_de_pago: "$_id",
+                    totalVentas: 1,
+                    cantidadPedidos: 1,
+                    porcentajeVentas: { $multiply: [ { $divide: ["$totalVentas", totalVentas[0].totalVentas] }, 100 ] }
+                }
+            }
+        ]);
+
+        res.json(ventasPorMetodoPago);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 module.exports = {
     GetPedidos,
     contarPedidos,
     GetPedidoById,
     UpdatePedidoById,
     DeletePedidoById,
-    PostPedido
+    PostPedido,
+    MejoresVentas,
+    VentasPorMes,
+    VentasPorMetodoEntrega,
+    VentasPorMetodoPago
 }

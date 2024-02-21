@@ -103,11 +103,62 @@ const GetClienteByCUI = async (req, res) => {
     }
 }
 
+
+const ClienteMasGastador = async (req, res) => {
+    try {
+        const clienteMasGastador = await PedidoSchema.aggregate([
+            {
+                $group: {
+                    _id: "$Comprador",
+                    totalGastado: { $sum: "$Precio_total" },
+                    cantidadPedidos: { $sum: 1 } // Contar la cantidad de pedidos por cliente
+                }
+            },
+            {
+                $lookup: {
+                    from: "Clientes", // Nombre de la colección de clientes
+                    localField: "_id",
+                    foreignField: "CUI",
+                    as: "clienteInfo"
+                }
+            },
+            {
+                $unwind: "$clienteInfo" // Deshacer el arreglo generado por el $lookup
+            },
+            {
+                $project: {
+                    _id: 0, // Excluir el ID generado por la agregación
+                    CUI: "$_id", // Utilizar el CUI como identificador del cliente
+                    nombre: "$clienteInfo.Nombre", // Obtener el nombre del cliente
+                    apellido: "$clienteInfo.Apellido", // Obtener el apellido del cliente
+                    totalGastado: 1, // Incluir el total gastado
+                    cantidadPedidos: 1 // Incluir la cantidad de pedidos
+                }
+            },
+            {
+                $sort: { totalGastado: -1 } // Ordenar por total gastado descendente
+            },
+            {
+                $limit: 1 // Obtener solo el cliente con el total más alto
+            }
+        ]);
+
+        if (clienteMasGastador.length === 0) {
+            return res.status(404).json({ mensaje: 'No se encontraron clientes.' });
+        }
+
+        res.json(clienteMasGastador[0]); // Enviar el cliente más gastador como respuesta
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 module.exports = {
     GetClientes,
     ClienteConMasPedidos,
     PostCliente,
     UpdateClienteByCUI,
     DeleteClienteByCUI,
-    GetClienteByCUI
+    GetClienteByCUI,
+    ClienteMasGastador
 }

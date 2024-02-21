@@ -11,44 +11,37 @@ const arregloSchema =  mongoose.Schema({
             required: true
         },
         Tipo: {
+            // campos no requeridos
             Flores: {
                 Cantidad: {
                     type: Number,
-                    required: true
                 },
                 Tipo_de_flor: {
                     type: String,
-                    required: true
                 }
             },
             Globos: {
                 Cantidad: {
                     type: Number,
-                    required: true
                 },
                 Tipo_de_globo: {
                     type: String,
-                    required: true
                 }
             },
             Snacks: {
                 Cantidad: {
                     type: Number,
-                    required: true
                 },
                 Marca: {
                     type: String,
-                    required: true
                 }
             },
             Botellas: {
                 Cantidad: {
                     type: Number,
-                    required: true
                 },
                 Alcohol: {
                     type: String,
-                    required: true
                 }
             }
         }

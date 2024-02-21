@@ -54,8 +54,8 @@ def generar_pedido(id_pedido):
 
 # Generar 50 pedidos de ejemplo
 
-id_pedido = 1
-for _ in range(50000):
+id_pedido = 24000
+for _ in range(27000):
     pedido = generar_pedido(id_pedido)
     collection_pedidos.insert_one(pedido)
     id_pedido += 1
